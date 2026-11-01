@@ -1201,9 +1201,36 @@ Response: 200 OK
 ```
 
 ### `DELETE` /guest/groups/{groupReservationId}/sessions/{guestSessionId}
-Response: 200 OK
+Removes a guest's session from a group pre-order. Only the reservation owner (the customer who made the reservation) can call it.
+The owner's own session cannot be removed.
+
+Response: 200 OK - the updated snapshot of the group (the removed session is not included)
 ```json
 {
-  "message": "Guest session removed from group successfully."
+  "participants": [
+    {
+      "id": "session2",
+      "type": "Guest",
+      "name": "Olena",
+      "items": [
+        {
+          "dish": { "id": "dish2", "name": "Tom Yum", "price": 220 },
+          "quantity": 1
+        }
+      ],
+      "total": 220,
+      "isSubmitted": false
+    }
+  ],
+  "total": 220
 }
 ```
+`dish` is the full dish object (description, weight, calories, ...); only the main fields are shown above.
+`type` is `Owner` for the owner's session (listed first when present) and `Guest` otherwise.
+
+| Status | When |
+|--------|------|
+| 400 | the guest session does not belong to this group reservation, or it is the owner's own session |
+| 401 | no authenticated user |
+| 403 | the caller is not the owner of the reservation |
+| 404 | group reservation (or its reservation) not found, or guest session not found |
